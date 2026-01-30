@@ -7,9 +7,10 @@
 Atualizar o sistema de auditoria para o novo modelo Mobile e ajustar funcionalidades mensais usando PocketBase como backend.
 
 ## 📅 Estado Atual (Última Atualização: Hoje)
-- **Fase**: Migração Concluída / Validação
+- **Fase**: Deploy em Novo Repositório Concluído
 - **Backend**: Supabase (Integrado)
 - **Frontend**: React + Vite (Configurado para Supabase)
+- **GitHub**: [auditorialoja-supabase](https://github.com/marcoshp1-alt/auditorialoja-supabase.git)
 
 ## 🚀 Em Progresso
 - [x] Migrar backend de PocketBase para Supabase
