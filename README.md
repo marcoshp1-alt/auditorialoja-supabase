@@ -2,11 +2,15 @@
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# Run and deploy your AI Studio app
+# Auditoria Loja (Supabase)
 
-This contains everything you need to run your app locally.
+Sistema de auditoria migrado para Supabase com suporte a recursos mobile.
 
-View your app in AI Studio: https://ai.studio/apps/drive/1D0OTlMqxEdRphdqWwkiewSc7-x59mjG_
+## Funcionalidades
+- Auditoria de lojas via mobile
+- Dashboard de rankings e estatísticas
+- Backend Supabase (Auth, DB, Storage, Edge Functions)
+- Migração histórica do PocketBase
 
 ## Run Locally
 
