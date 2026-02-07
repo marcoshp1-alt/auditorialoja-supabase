@@ -14,14 +14,6 @@ interface AdminPanelProps {
 const AdminPanel: React.FC<AdminPanelProps> = ({ onShowToast, onProfileUpdate, profile }) => {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-
-  // Bloqueio de segurança: Se não for admin, não renderiza nada
-  if (profile && profile.role !== 'admin') {
-    return <div className="p-8 text-center bg-white rounded-3xl shadow-sm">
-      <h2 className="text-xl font-black text-red-600 uppercase">Acesso Negado</h2>
-      <p className="text-slate-500 mt-2">Você não tem permissão para acessar esta área.</p>
-    </div>;
-  }
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
@@ -37,7 +29,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onShowToast, onProfileUpdate, p
     username: '',
     password: '',
     role: 'user' as 'admin' | 'user' | 'viewer',
-    loja: ''
+    loja: '',
+    regional: 'NE 2'
   });
 
   // Novos estados para filtro de lojas do admin
@@ -155,7 +148,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onShowToast, onProfileUpdate, p
         id: r.id,
         username: r.username,
         role: r.role,
-        loja: r.loja
+        loja: r.loja,
+        regional: r.regional || 'NE 2'
       }));
 
       setUsers(mappedUsers);
@@ -174,7 +168,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onShowToast, onProfileUpdate, p
         username: user.username,
         password: '',
         role: user.role,
-        loja: user.loja
+        loja: user.loja,
+        regional: user.regional || 'NE 2'
       });
     } else {
       setEditingUser(null);
@@ -182,7 +177,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onShowToast, onProfileUpdate, p
         username: '',
         password: '',
         role: 'user',
-        loja: ''
+        loja: '',
+        regional: 'NE 2'
       });
     }
     setFormError(null);
@@ -205,6 +201,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onShowToast, onProfileUpdate, p
     try {
       const cleanUsername = formData.username.trim().toLowerCase();
       const cleanLoja = formData.loja.trim() || '204';
+      const cleanRegional = formData.regional.trim() || 'NE 2';
       const internalEmail = cleanUsername.includes('@') ? cleanUsername : `${cleanUsername}@auditoria.com`;
 
       // Validação de senha
@@ -220,7 +217,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onShowToast, onProfileUpdate, p
           .from('profiles')
           .update({
             role: formData.role,
-            loja: cleanLoja
+            loja: cleanLoja,
+            regional: cleanRegional
           })
           .eq('id', editingUser.id);
 
@@ -253,7 +251,8 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onShowToast, onProfileUpdate, p
             password: formData.password,
             username: cleanUsername,
             role: formData.role,
-            loja: cleanLoja
+            loja: cleanLoja,
+            regional: cleanRegional
           }
         });
 
@@ -300,6 +299,16 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onShowToast, onProfileUpdate, p
       setFormLoading(false);
     }
   };
+
+  // Bloqueio de segurança: Se não for admin, não renderiza nada
+  if (profile && profile.role !== 'admin') {
+    return (
+      <div className="p-8 text-center bg-white rounded-3xl shadow-sm max-w-lg mx-auto mt-20">
+        <h2 className="text-xl font-black text-red-600 uppercase">Acesso Negado</h2>
+        <p className="text-slate-500 mt-2">Você não tem permissão para acessar esta área.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 max-w-6xl mx-auto animate-fade-in">
@@ -387,6 +396,7 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onShowToast, onProfileUpdate, p
                   <th className="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Usuário</th>
                   <th className="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Nível</th>
                   <th className="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Loja</th>
+                  <th className="px-8 py-5 text-left text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Regional</th>
                   <th className="px-8 py-5 text-right text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Ações</th>
                 </tr>
               </thead>
@@ -412,6 +422,11 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onShowToast, onProfileUpdate, p
                     <td className="px-8 py-6 whitespace-nowrap">
                       <div className="flex items-center gap-2 text-slate-500 font-bold text-xs uppercase">
                         <Store className="w-4 h-4 opacity-40" /> {user.loja || '---'}
+                      </div>
+                    </td>
+                    <td className="px-8 py-6 whitespace-nowrap">
+                      <div className="flex items-center gap-2 text-slate-500 font-bold text-xs uppercase">
+                        <ExternalLink className="w-4 h-4 opacity-40" /> {user.regional || '---'}
                       </div>
                     </td>
                     <td className="px-8 py-6 whitespace-nowrap text-right">
@@ -508,9 +523,27 @@ const AdminPanel: React.FC<AdminPanelProps> = ({ onShowToast, onProfileUpdate, p
                     <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Função</label>
                     <select disabled={formLoading} value={formData.role} onChange={e => setFormData({ ...formData, role: e.target.value as any })} className="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-slate-700 focus:border-blue-500 outline-none appearance-none"><option value="user">USER</option><option value="viewer">VIEWER</option><option value="admin">ADMIN</option></select>
                   </div>
-                  <div>
-                    <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Loja</label>
-                    <input type="text" required disabled={formLoading} value={formData.loja} onChange={e => setFormData({ ...formData, loja: e.target.value.toUpperCase() })} className="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl font-black text-slate-700 focus:border-blue-500 outline-none" />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Loja Base</label>
+                      <input
+                        type="text"
+                        placeholder="Ex: 204"
+                        value={formData.loja}
+                        onChange={e => setFormData({ ...formData, loja: e.target.value.toUpperCase() })}
+                        className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-slate-700 focus:bg-white focus:border-blue-500 outline-none transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 ml-1">Regional</label>
+                      <input
+                        type="text"
+                        placeholder="Ex: NE 2"
+                        value={formData.regional}
+                        onChange={e => setFormData({ ...formData, regional: e.target.value })}
+                        className="w-full px-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-2xl font-bold text-slate-700 focus:bg-white focus:border-blue-500 outline-none transition-all"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
